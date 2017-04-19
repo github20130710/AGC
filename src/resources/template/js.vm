@@ -1,0 +1,205 @@
+/**
+ * Created by ${author} on ${createDate?date}.
+ */
+'use strict';
+
+app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $timeout, $log, $stateParams, resourceService) {
+
+    $scope.breadcrumbs = [
+        {'path': 'app.${routePath}', 'name': '${routeDisplayName}'}
+    ];
+
+    ///////////// table ///////////////
+    var uuid = $stateParams.uuid;
+    $scope.queryParams = {"conditions":[]};
+    if(uuid) {
+        $scope.queryParams.conditions.push({"name":"uuid","op":"=","value":uuid});
+    }
+    $scope.dataArr = [];
+    $scope.colArr = [
+<#list fields as field>
+    <#if field.value == "uuid">
+        {
+            field: '${field.value}',
+            displayName: '${field.name}',
+            cellTemplate: '<a class="text-info" ui-sref="app.${routePath}_detail({uuid: row.entity.uuid})">{{ row.entity.name }}</a>'
+        },
+    <#elseif field.value == "state" || field.value == "status">
+        {
+            field: '${field.value}',
+            displayName: '${field.name}',
+            cellTemplate: '<sf-state type="${entityNameLowerCase}" state="row.entity.${field.value}"></sf-state>'
+        },
+    <#else>
+        {
+            field: '${field.value}',
+            displayName: '${field.name}',
+        },
+    </#if>
+</#list>
+    ];
+
+    $scope.params = {grid: {}, fun: {}};
+
+    // callback function
+    $scope.callFn = function(item){
+        $scope.selectedItem = item;
+    };
+
+    function getAjaxData() {
+        resourceService.${entityNameLowerCase}_query($scope.queryParams).then(function(response){
+            if(response.errorCode==0){
+                $scope.dataArr = response.result;
+            }
+        });
+    };
+
+    $scope.loadData = function() {
+        getAjaxData();
+    };
+
+    $scope.loadData();
+
+    $scope.refresh = function(){
+        $scope.queryParams = {"conditions":[]};
+        getAjaxData();
+    };
+
+    ///////////// Events ///////////////
+    $scope.search = function() {
+        var dataStructure = [
+        <#list fields as field>
+            {'name': '${field.name}', 'value':'${field.value}', 'type':'${field.type}'},
+        </#list>
+        ];
+        $scope.params = dataStructure;
+        var modalInstance = $modal.open({
+            backdrop: false,
+            templateUrl: '${entityNameLowerCase}_search',
+            controller: 'SearchCtrl',
+            resolve: {
+                params: function () {
+                    return $scope.params;
+                }
+            }
+        });
+        modalInstance.result.then(function (result) {
+            $scope.queryParams.conditions = result;
+            $scope.loadData();
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+
+    $scope.create = function(){
+        $scope.params.grid = {state: "enabled"};
+        $scope.params.fun = {name: "添加"};
+        var modalInstance = $modal.open({
+            backdrop: false,
+            templateUrl: '${entityNameLowerCase}_add',
+            controller: '${entityNameUpperCase}AddCtrl',
+            resolve: {
+                params: function () {
+                    return $scope.params;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (selectedItem) {
+            $timeout(function(){
+                $scope.refresh();
+            },1000);
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+
+    $scope.delete = function (size) {
+        if (!$scope.selectedItem) {
+            window.wxc.xcConfirm("未选择删除的资源！", window.wxc.xcConfirm.typeEnum.info);
+            return;
+        }
+        var modalInstance = $modal.open({
+            backdrop: false,
+            templateUrl: '${entityNameLowerCase}_delete',
+            controller: 'DeleteCtrl',
+            size: size,
+            resolve: {
+                selectedItem: function () {
+                    return $scope.rowItem;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (deletingItemUuid) {
+            resourceService.${entityNameLowerCase}_delete({"uuid": deletingItemUuid}).then(function(response){
+                if(response.errorCode==0){
+                    removeByValue($scope.dataArr, selectedItem);
+                    window.wxc.xcConfirm("${routeDisplayName}删除操作成功,请等待结果!", window.wxc.xcConfirm.typeEnum.success);
+                } else {
+                    window.wxc.xcConfirm("${routeDisplayName}删除操作失败!", window.wxc.xcConfirm.typeEnum.error);
+                }
+            });
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+
+    function removeByValue(arr, val) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i]['id'] === val['id']) {
+                arr.splice(i, 1);
+                $scope.rowItem = null;
+                break;
+            }
+        }
+    };
+
+});
+
+app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCase}DetailCtr($scope, $stateParams, resourceService){
+
+    var uuid = $stateParams.uuid;
+
+    getByUUID(uuid);
+
+    function getByUUID(uuid) {
+        $scope.queryParams = {"conditions":[{"name": "uuid", "value": uuid, "op":"="}]};
+        resourceService.${entityNameLowerCase}_query($scope.queryParams).then(function(response){
+            if(response.errorCode==0){
+                $scope.current = response.result[0];
+                $scope.breadcrumbs = [
+                    {'path': 'app.resources.${entityNameLowerCase}', 'name': '${routeDisplayName}'},
+                    {'path': 'app.resources.${entityNameLowerCase}_detail({uuid: "'+ $scope.current.name +'"})', 'name': $scope.current.name }
+                ];
+            }
+        });
+    };
+});
+
+app.controller('${entityNameUpperCase}AddCtrl', ['$scope', '$modalInstance', 'resourceService', 'params', function ($scope, $modalInstance, resourceService, params){
+
+    $scope.fun = params.fun;
+    $scope.grid = params.grid;
+    $scope.ok = function (isValid, add) {
+        if (!isValid) return;
+        $modalInstance.close($scope.grid);
+        createAjax(add);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+    function createAjax(parameters) {
+        $scope.cancel();
+        resourceService.${entityNameLowerCase}_create(parameters).then(function(response){
+            if(response.errorCode==0){
+                window.wxc.xcConfirm("${routeDisplayName}创建操作成功,请等待结果!", window.wxc.xcConfirm.typeEnum.success);
+            } else {
+                window.wxc.xcConfirm("${routeDisplayName}创建操作失败!", window.wxc.xcConfirm.typeEnum.error);
+            }
+        });
+    }
+
+}]);

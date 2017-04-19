@@ -1,0 +1,19 @@
+[
+  {"name": "clusterUuid", "value": "clusterUuid", "type": "string", "desc": ""},
+  {"name": "sshPort", "value": "sshPort", "type": "number", "desc": ""},
+  {"name": "availableCpuCapacity", "value": "availableCpuCapacity", "type": "number", "desc": ""},
+  {"name": "zoneUuid", "value": "zoneUuid", "type": "string", "desc": ""},
+  {"name": "description", "value": "description", "type": "string", "desc": ""},
+  {"name": "hypervisorType", "value": "hypervisorType", "type": "string", "desc": ""},
+  {"name": "totalMemoryCapacity", "value": "totalMemoryCapacity", "type": "number", "desc": ""},
+  {"name": "uuid", "value": "uuid", "type": "string", "desc": ""},
+  {"name": "managementIp", "value": "managementIp", "type": "string", "desc": ""},
+  {"name": "lastOpDate", "value": "lastOpDate", "type": "date", "desc": ""},
+  {"name": "name", "value": "name", "type": "string", "desc": ""},
+  {"name": "availableMemoryCapacity", "value": "availableMemoryCapacity", "type": "number", "desc": ""},
+  {"name": "totalCpuCapacity", "value": "totalCpuCapacity", "type": "number", "desc": ""},
+  {"name": "createDate", "value": "createDate", "type": "date", "desc": ""},
+  {"name": "status", "value": "status", "type": "string", "desc": ""},
+  {"name": "state", "value": "state", "type": "string", "desc": ""},
+  {"name": "username", "value": "username", "type": "string", "desc": ""}
+]

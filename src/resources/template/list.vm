@@ -1,0 +1,37 @@
+<div ng-controller="${entityNameUpperCase}Ctrl">
+    <sf-breadcrumb arr="breadcrumbs"></sf-breadcrumb>
+    <div class="wrapper">
+        <div class="row btn-toolbar">
+            <button class="btn btn-primary btn-sm" ng-click="refresh()">
+                <i class="fa fa-refresh"></i>
+            </button>
+            <button class="btn btn-primary btn-sm" ng-click="search()">
+                <i class="fa fa-search"></i>
+            </button>
+            <button class="btn btn-primary btn-sm" ng-click="create()">
+                <i class="fa fa-plus"></i>
+                <span class="btn-name">添加</span>
+            </button>
+            <div class="btn-group dropdown pull-none" dropdown ng-hide="!selectedItem || selectedItem.length==0">
+                <button class="btn btn-primary btn-sm" dropdown-toggle>更多操作<span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li ng-click="delete()"><a href>删除</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <sf-ui-grid arr="dataArr" col-arr="colArr" call-fn="callFn"></sf-ui-grid>
+
+    </div>
+</div>
+
+<!-- TEMPLATE -->
+<script type="text/ng-template" id="${entityNameLowerCase}_search">
+    <div ng-include="'views/common/search/search.html'"></div>
+</script>
+<script type="text/ng-template" id="${entityNameLowerCase}_add">
+    <div ng-include="'views/resources/${entityNameLowerCase}/${entityNameLowerCase}_add.html'"></div>
+</script>
+<script type="text/ng-template" id="${entityNameLowerCase}_delete">
+    <div ng-include="'views/common/delete/delete.html'"></div>
+</script>
