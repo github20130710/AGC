@@ -15,6 +15,7 @@ public class Model {
     private String routePath;   //模块访问路径(app之后的, 例如app.dashboard,这里会写成dashboard)
     private String routeDisplayName;   //模块显示名称
     private List<Metadata> list = new ArrayList<Metadata>();  //模块数据结构
+    private List<Operation> operations = new ArrayList<Operation>();   // 弹出框数组(创建删除以外)
     private String author;      //作者
     private Date createDate;    //文件创建时间
 
@@ -78,4 +79,13 @@ public class Model {
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
+
+    public List<Operation> getOperations() {
+        return operations;
+    }
+
+    public void setOperations(List<Operation> operations) {
+        this.operations = operations;
+    }
+
 }

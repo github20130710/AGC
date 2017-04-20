@@ -8,7 +8,9 @@
                     <ul class="list-group">
                     <#list fields as field>
                         <li class="list-group-item">
+                            <#if field.value!="null" && field.value!="undefined">
                             <span class="list-group-item-title col-lg-4">${field.name}</span>{{current.${field.value}}}
+                            </#if>
                         </li>
                     </#list>
                     </ul>

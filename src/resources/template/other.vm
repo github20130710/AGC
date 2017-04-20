@@ -1,0 +1,29 @@
+.state('app.${routePath}', {
+    url: '/${entityNameLowerCase}?uuid',
+    templateUrl: 'views/resources/volume/volume.html',
+    resolve: {
+        deps: ['$ocLazyLoad',
+            function ($ocLazyLoad) {
+                return $ocLazyLoad.load('sf.ui.grid').then(
+                    function () {
+                        return $ocLazyLoad.load([
+                            'views/resources/${entityNameLowerCase}/${entityNameLowerCase}.js'
+                        ]);
+                    }
+                );
+            }]
+    }
+})
+.state('app.${routePath}_detail', {
+    url: '/${entityNameLowerCase}_detail?uuid',
+    templateUrl: 'views/resources/volume/volume_detail.html',
+    controller: '${entityNameUpperCase}DetailCtrl',
+    resolve: {
+        deps: ['$ocLazyLoad',
+            function( $ocLazyLoad ){
+                return $ocLazyLoad.load([
+                    'views/resources/${entityNameLowerCase}/${entityNameLowerCase}.js'
+                ]);
+            }]
+    }
+})

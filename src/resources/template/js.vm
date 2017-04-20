@@ -18,23 +18,25 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
     $scope.dataArr = [];
     $scope.colArr = [
 <#list fields as field>
-    <#if field.value == "uuid">
+    <#if field.table?string == "true">
+        <#if field.value == "uuid">
         {
             field: '${field.value}',
             displayName: '${field.name}',
             cellTemplate: '<a class="text-info" ui-sref="app.${routePath}_detail({uuid: row.entity.uuid})">{{ row.entity.name }}</a>'
         },
-    <#elseif field.value == "state" || field.value == "status">
+        <#elseif field.value == "state" || field.value == "status">
         {
             field: '${field.value}',
             displayName: '${field.name}',
             cellTemplate: '<sf-state type="${entityNameLowerCase}" state="row.entity.${field.value}"></sf-state>'
         },
-    <#else>
+        <#else>
         {
             field: '${field.value}',
             displayName: '${field.name}',
         },
+        </#if>
     </#if>
 </#list>
     ];
@@ -69,7 +71,9 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
     $scope.search = function() {
         var dataStructure = [
         <#list fields as field>
-            {'name': '${field.name}', 'value':'${field.value}', 'type':'${field.type}'},
+            <#if field.query?string == "true">
+                {'name': '${field.name}', 'value':'${field.value}', 'type':'${field.type}'},
+            </#if>
         </#list>
         ];
         $scope.params = dataStructure;
@@ -96,8 +100,8 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
         $scope.params.fun = {name: "添加"};
         var modalInstance = $modal.open({
             backdrop: false,
-            templateUrl: '${entityNameLowerCase}_add',
-            controller: '${entityNameUpperCase}AddCtrl',
+            templateUrl: '${entityNameLowerCase}_create',
+            controller: '${entityNameUpperCase}CreateCtrl',
             resolve: {
                 params: function () {
                     return $scope.params;
@@ -125,7 +129,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             controller: 'DeleteCtrl',
             size: size,
             resolve: {
-                selectedItem: function () {
+                params: function () {
                     return $scope.rowItem;
                 }
             }
@@ -134,7 +138,6 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
         modalInstance.result.then(function (deletingItemUuid) {
             resourceService.${entityNameLowerCase}_delete({"uuid": deletingItemUuid}).then(function(response){
                 if(response.errorCode==0){
-                    removeByValue($scope.dataArr, selectedItem);
                     window.wxc.xcConfirm("${routeDisplayName}删除操作成功,请等待结果!", window.wxc.xcConfirm.typeEnum.success);
                 } else {
                     window.wxc.xcConfirm("${routeDisplayName}删除操作失败!", window.wxc.xcConfirm.typeEnum.error);
@@ -145,15 +148,44 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
         });
     };
 
-    function removeByValue(arr, val) {
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i]['id'] === val['id']) {
-                arr.splice(i, 1);
-                $scope.rowItem = null;
-                break;
+<#list operations as operation>
+<#if operation.modal?string == "true">
+    $scope.${operation.name} = function() {
+        var modalInstance = $modal.open({
+            backdrop: false,
+            templateUrl: '${entityNameLowerCase}_${operation.name}',
+            controller: '${entityNameUpperCase}${operation.nameUpper}Ctrl',
+            size: 'modal-sm',
+            resolve: {
+                selectedItem: function () {
+                    return $scope.selectedItem;
+                }
             }
-        }
+        });
+
+        modalInstance.result.then(function (selectedItem) {
+            $timeout($scope.refresh(), 1000);
+        }, function () {
+            $log.info('Modal dismissed at: ' + new Date());
+        });
     };
+<#else>
+    $scope.${operation.name} = function() {
+        if (!$scope.selectedItem) {
+            window.wxc.xcConfirm("请选择要操作的资源!", window.wxc.xcConfirm.typeEnum.info);
+            return;
+        }
+        resourceService.${entityNameLowerCase}_${operation.name}({"uuid": $scope.selectedItem.uuid}).then(function(response){
+            if(response.errorCode==0){
+                $scope.refresh();
+                toaster.pop('success', '', '${entityNameUpperCase}${operation.displayName}操作提交成功,请等待结果!');
+            } else {
+                toaster.pop('error', '', '${entityNameUpperCase}${operation.displayName}操作提交失败,请联系管理员!');
+            }
+        });
+    };
+</#if>
+</#list>
 
 });
 
@@ -177,7 +209,7 @@ app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCas
     };
 });
 
-app.controller('${entityNameUpperCase}AddCtrl', ['$scope', '$modalInstance', 'resourceService', 'params', function ($scope, $modalInstance, resourceService, params){
+app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 'resourceService', 'params', function ($scope, $modalInstance, resourceService, params){
 
     $scope.fun = params.fun;
     $scope.grid = params.grid;
@@ -201,5 +233,28 @@ app.controller('${entityNameUpperCase}AddCtrl', ['$scope', '$modalInstance', 're
             }
         });
     }
-
 }]);
+
+<#list operations as operation>
+<#if operation.modal?string == "true">
+app.controller('${entityNameUpperCase}${operation.nameUpper}Ctrl', ['$scope', '$modalInstance', 'selectedItem', 'resourceService', 'toaster',
+    function ($scope, $modalInstance, selectedItem, resourceService, toaster) {
+    var params = {"uuid": selectedItem.uuid};
+    $scope.ok = function () {
+        $scope.cancel();
+        resourceService.${entityNameLowerCase}_${operation.name}(params).then(function(response){
+            if(response.errorCode==0){
+                toaster.pop('success', '', '${entityNameUpperCase}${operation.displayName}操作提交成功,请等待结果!');
+            } else {
+                toaster.pop('error', '', '${entityNameUpperCase}${operation.displayName}操作提交失败,请联系管理员!');
+            }
+        });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}]);
+<#else>
+</#if>
+</#list>

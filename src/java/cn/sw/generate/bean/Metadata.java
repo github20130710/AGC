@@ -8,6 +8,8 @@ public class Metadata {
     private String type;    //字段类型
     private String value;   //字段值
     private String desc;    //字段描述
+    private String table;  //是否显示在table列表中
+    private String query;  //是否显示在query列表中
 
     public String getName() {
         return name;
@@ -39,5 +41,21 @@ public class Metadata {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
     }
 }

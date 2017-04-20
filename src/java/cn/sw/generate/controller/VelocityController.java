@@ -32,7 +32,7 @@ public class VelocityController {
     @RequestMapping(value = "/generate", method= RequestMethod.GET)
     public @ResponseBody void generate() {
         try {
-            service.generate();
+            service.generate("volume");
             System.out.println("success generate code ...");
         } catch (Exception e) {
             e.printStackTrace();

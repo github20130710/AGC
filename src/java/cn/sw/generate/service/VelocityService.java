@@ -2,6 +2,7 @@ package cn.sw.generate.service;
 
 import cn.sw.generate.bean.Metadata;
 import cn.sw.generate.bean.Model;
+import cn.sw.generate.bean.Operation;
 import cn.sw.util.FileUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -19,18 +20,30 @@ public class VelocityService {
 
 //    private @Value("#{settings['generator.template.path']}") String templatePath;
 //    private @Value("#{settings['generator.output.path']}") String outputPathPrefix;
-    private String templatePath = "template";
-    private String outputPathPrefix = "/Users/sophia.wang/workspace_idea/AutoGenerate/output/";
-    private String dataPath = "/Users/sophia.wang/workspace_idea/AutoGenerate/src/resources/json/";
+    private static String templatePath = "template";
+    private static String outputPathPrefix = "/Users/sophia.wang/workspace_idea/AutoGenerate/output/";
+    private static String dataPath = "/Users/sophia.wang/workspace_idea/AutoGenerate/src/resources/json/";
 
-    public void generate() throws Exception {
-        List<Metadata> array = getDataStructFromJson(dataPath, "host");
-        Model model = new Model("host");
-        model.setRoutePath("resources.host");
-        model.setRouteDisplayName("主机");
+    public void generateAll() throws Exception {
+
+    }
+
+    public static void generate(String name) throws Exception {
+        List<Metadata> array = getDataStructFromJson(dataPath, name);
+
+        List<Operation> operations = new ArrayList<Operation>();   // 弹出框数组(创建删除以外)
+        Operation op1 = new Operation("disable", "禁用");
+        Operation op2 = new Operation("mountToVM", "挂载", "true");
+        operations.add(op1);
+        operations.add(op2);
+
+        Model model = new Model(name);
+        model.setRoutePath("resources." + name);
+        model.setRouteDisplayName("虚拟磁盘");
         model.setAuthor("sophia.wang");
         model.setCreateDate(new Date());
         model.setList(array);
+        model.setOperations(operations);
 
         VelocityContext context=new VelocityContext();  // 创建数据模型
         context.put("entityNameUpperCase", model.getEntityNameUpperCase());
@@ -40,11 +53,14 @@ public class VelocityService {
         context.put("author", model.getAuthor());
         context.put("createDate", model.getCreateDate());
         context.put("fields", model.getList());
+        context.put("operations", model.getOperations());
 
         /* 生成Request */
-        FileUtil.merge("list.vm", templatePath, context, "host.html", outputPathPrefix + "host/");
-        FileUtil.merge("js.vm", templatePath, context, "host.js", outputPathPrefix + "host/");
-        FileUtil.merge("detail.vm", templatePath, context, "host_detail.html", outputPathPrefix + "host/");
+        FileUtil.merge("list.vm", templatePath, context, name + ".html", outputPathPrefix + name + "/");
+        FileUtil.merge("js.vm", templatePath, context, name + ".js", outputPathPrefix + name + "/");
+        FileUtil.merge("detail.vm", templatePath, context, name + "_detail.html", outputPathPrefix + name + "/");
+        FileUtil.merge("createModal.vm", templatePath, context, name + "_create.html", outputPathPrefix + name + "/");
+        FileUtil.merge("other.vm", templatePath, context, name + "_other.js", outputPathPrefix + name + "/");
     }
 
     /**
@@ -65,6 +81,14 @@ public class VelocityService {
             fieldList.add(metadata);
         }
         return fieldList;
+    }
+
+    public static void main(String[] args) {
+        try {
+            generate("volume");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -15,6 +15,10 @@
             <div class="btn-group dropdown pull-none" dropdown ng-hide="!selectedItem || selectedItem.length==0">
                 <button class="btn btn-primary btn-sm" dropdown-toggle>更多操作<span class="caret"></span></button>
                 <ul class="dropdown-menu">
+                <#list operations as operation>
+                    <li ng-click="${operation.name}()"><a href>${operation.displayName}</a></li>
+                </#list>
+                    <li class="divider"></li>
                     <li ng-click="delete()"><a href>删除</a></li>
                 </ul>
             </div>
@@ -29,9 +33,25 @@
 <script type="text/ng-template" id="${entityNameLowerCase}_search">
     <div ng-include="'views/common/search/search.html'"></div>
 </script>
-<script type="text/ng-template" id="${entityNameLowerCase}_add">
-    <div ng-include="'views/resources/${entityNameLowerCase}/${entityNameLowerCase}_add.html'"></div>
+<script type="text/ng-template" id="${entityNameLowerCase}_create">
+    <div ng-include="'views/resources/${entityNameLowerCase}/${entityNameLowerCase}_create.html'"></div>
 </script>
 <script type="text/ng-template" id="${entityNameLowerCase}_delete">
     <div ng-include="'views/common/delete/delete.html'"></div>
 </script>
+<#list operations as operation>
+<#if operation.modal?string == "true">
+<script type="text/ng-template" id="${entityNameLowerCase}_${operation.name}">
+    <div class="modal-header">
+        <h3 class="modal-title">${operation.displayName}</h3>
+    </div>
+    <div class="modal-body">
+        content ....
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-sm btn-primary" ng-click="ok()">OK</button>
+        <button type="button" class="btn btn-sm btn-default" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+<#else></#if>
+</#list>
