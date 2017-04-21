@@ -32,14 +32,18 @@ public class VelocityService {
         List<Metadata> array = getDataStructFromJson(dataPath, name);
 
         List<Operation> operations = new ArrayList<Operation>();   // 弹出框数组(创建删除以外)
-        Operation op1 = new Operation("disable", "禁用");
-        Operation op2 = new Operation("mountToVM", "挂载", "true");
+        Operation op1 = new Operation("addIpRange", "添加IP范围", "true");
+        Operation op2 = new Operation("deleteIpRange", "删除IP范围", "true");
+        Operation op3 = new Operation("addDns", "添加DNS", "true");
+        Operation op4 = new Operation("deleteDns", "删除DNS", "true");
         operations.add(op1);
         operations.add(op2);
+        operations.add(op3);
+        operations.add(op4);
 
         Model model = new Model(name);
         model.setRoutePath("resources." + name);
-        model.setRouteDisplayName("虚拟磁盘");
+        model.setRouteDisplayName("L3网络");
         model.setAuthor("sophia.wang");
         model.setCreateDate(new Date());
         model.setList(array);
@@ -85,7 +89,7 @@ public class VelocityService {
 
     public static void main(String[] args) {
         try {
-            generate("volume");
+            generate("l3network");
         } catch (Exception e) {
             e.printStackTrace();
         }

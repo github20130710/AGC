@@ -46,10 +46,24 @@
         <h3 class="modal-title">${operation.displayName}</h3>
     </div>
     <div class="modal-body">
-        content ....
+        <form id="${operation.name}Form" role="form" class="sf-form form-validation" name="${operation.name}Form">
+            <div class="form-group">
+                <label class="col-md-3 col-sm-3 control-label">名称:</label>
+                <div class="col-md-6 col-sm-6 no-padder-sm">
+                    <input type="text" class="form-control" ng-model="${operation.name}.name" ng-maxlength="128" placeholder="max length of 128 character" required>
+                </div>
+                <span class="tip">*</span>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 col-sm-3  control-label">描述:</label>
+                <div class="col-md-6 col-sm-6 no-padder-sm">
+                    <textarea class="form-control" rows="4" style="min-height: 50px;" ng-model="${operation.name}.description" ng-maxlength="2048" placeholder="max length of 2048 character"></textarea>
+                </div>
+            </div>
+        </form>
     </div>
     <div class="modal-footer">
-        <button type="submit" class="btn btn-sm btn-primary" ng-click="ok()">OK</button>
+        <button type="submit" class="btn btn-sm btn-primary" ng-click="ok(${operation.name}.$invalid, ${operation.name})" ng-disabled="${operation.name}.$invalid">OK</button>
         <button type="button" class="btn btn-sm btn-default" ng-click="cancel()">Cancel</button>
     </div>
 </script>

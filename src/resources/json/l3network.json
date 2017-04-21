@@ -1,0 +1,22 @@
+[
+  {"name": "名称", "value": "name", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "可用状态", "value": "state", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "系统网络", "value": "system", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "类型", "value": "type", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "UUID", "value": "uuid", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "DNS", "value": "dns", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "DNS域名", "value": "dnsDomain", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "ip范围", "value": "ipRanges", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "L2网络UUID", "value": "l2NetworkUuid", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "网络服务", "value": "networkServices", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "上次操作时间", "value": "lastOpDate", "type": "date", "desc": "", "table": "false", "query": "true"},
+  {"name": "创建时间", "value": "createDate", "type": "date", "desc": "", "table": "false", "query": "true"},
+  {"name": "所属用户ID", "value": "belongUserId", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "任务ID", "value": "jobId", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "任务状态", "value": "jobState", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "任务描述", "value": "jobDescription", "type": "string", "desc": "", "table": "false", "query": "false"},
+  {"name": "工单ID", "value": "woId", "type": "number", "desc": "", "table": "false", "query": "true"},
+  {"name": "业务ID", "value": "projectId", "type": "number", "desc": "", "table": "false", "query": "true"},
+  {"name": "资源池ID", "value": "poolId", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "描述", "value": "description", "type": "string", "desc": "", "table": "false", "query": "true"}
+]

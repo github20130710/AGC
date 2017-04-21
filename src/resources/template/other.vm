@@ -1,6 +1,14 @@
+////////////////////////   Menu    ////////////////////////////////////
+<li ui-sref-active="active">
+    <a ui-sref="app.${routePath}">
+        <i class="fa fa-cube text-primary-lter"></i><span>${routeDisplayName}</span>
+    </a>
+</li>
+
+////////////////////////   Router    ////////////////////////////////////
 .state('app.${routePath}', {
     url: '/${entityNameLowerCase}?uuid',
-    templateUrl: 'views/resources/volume/volume.html',
+    templateUrl: 'views/resources/${entityNameLowerCase}/${entityNameLowerCase}.html',
     resolve: {
         deps: ['$ocLazyLoad',
             function ($ocLazyLoad) {
@@ -16,7 +24,7 @@
 })
 .state('app.${routePath}_detail', {
     url: '/${entityNameLowerCase}_detail?uuid',
-    templateUrl: 'views/resources/volume/volume_detail.html',
+    templateUrl: 'views/resources/${entityNameLowerCase}/${entityNameLowerCase}_detail.html',
     controller: '${entityNameUpperCase}DetailCtrl',
     resolve: {
         deps: ['$ocLazyLoad',
@@ -27,3 +35,53 @@
             }]
     }
 })
+
+////////////////////////   Service    ////////////////////////////////////
+self.ResourceCMD = {
+    '${entityNameLowerCase}_query'  : ${entityNameUpperCase}ServiceURL + '/Query${entityNameUpperCase}',
+    '${entityNameLowerCase}_create' : ${entityNameUpperCase}ServiceURL + '/Create${entityNameUpperCase}',
+    '${entityNameLowerCase}_delete' : ${entityNameUpperCase}ServiceURL + '/Delete${entityNameUpperCase}',
+<#list operations as operation>
+    '${entityNameLowerCase}_${operation.name}' : ${entityNameUpperCase}ServiceURL + '/${operation.nameUpper}${entityNameUpperCase}',
+</#list>
+};
+
+////////////////////////   ${routeDisplayName}    ////////////////////////////////////
+self.${entityNameLowerCase}_query = function(params) {
+    var res_cmd = transfer(self.ResourceCMD.${entityNameLowerCase}_query, params);
+    var task = $q.defer();
+    res_cmd.post(params,function(response) {
+        task.resolve(response.toJSON());
+    });
+    return task.promise;
+};
+
+self.${entityNameLowerCase}_create = function(params) {
+    var res_cmd = transfer(self.ResourceCMD.${entityNameLowerCase}_create, params);
+    var task = $q.defer();
+    res_cmd.post(params,function(response) {
+        task.resolve(response.toJSON());
+    });
+    return task.promise;
+};
+
+self.${entityNameLowerCase}_delete = function(params) {
+    var res_cmd = transfer(self.ResourceCMD.${entityNameLowerCase}_delete, params);
+    var task = $q.defer();
+    res_cmd.post(params,function(response) {
+        task.resolve(response.toJSON());
+    });
+    return task.promise;
+};
+
+<#list operations as operation>
+self.${entityNameLowerCase}_${operation.name} = function(params) {
+    var res_cmd = transfer(self.ResourceCMD.${entityNameLowerCase}_${operation.name}, params);
+    var task = $q.defer();
+    res_cmd.post(params,function(response) {
+        task.resolve(response.toJSON());
+    });
+    return task.promise;
+};
+
+</#list>

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $timeout, $log, $stateParams, resourceService) {
+app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $timeout, $log, $stateParams, resourceService, toaster) {
 
     $scope.breadcrumbs = [
         {'path': 'app.${routePath}', 'name': '${routeDisplayName}'}
@@ -96,8 +96,6 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
     };
 
     $scope.create = function(){
-        $scope.params.grid = {state: "enabled"};
-        $scope.params.fun = {name: "添加"};
         var modalInstance = $modal.open({
             backdrop: false,
             templateUrl: '${entityNameLowerCase}_create',
@@ -127,10 +125,10 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             backdrop: false,
             templateUrl: '${entityNameLowerCase}_delete',
             controller: 'DeleteCtrl',
-            size: size,
+            size: 'modal-sm',
             resolve: {
                 params: function () {
-                    return $scope.rowItem;
+                    return $scope.selectedItem;
                 }
             }
         });
@@ -138,9 +136,9 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
         modalInstance.result.then(function (deletingItemUuid) {
             resourceService.${entityNameLowerCase}_delete({"uuid": deletingItemUuid}).then(function(response){
                 if(response.errorCode==0){
-                    window.wxc.xcConfirm("${routeDisplayName}删除操作成功,请等待结果!", window.wxc.xcConfirm.typeEnum.success);
+                    toaster.pop('success', '', '${routeDisplayName}删除操作提交成功,请等待结果!');
                 } else {
-                    window.wxc.xcConfirm("${routeDisplayName}删除操作失败!", window.wxc.xcConfirm.typeEnum.error);
+                    toaster.pop('error', '', '${routeDisplayName}删除操作提交失败,请联系管理员!');
                 }
             });
         }, function () {
@@ -163,12 +161,13 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             }
         });
 
-        modalInstance.result.then(function (selectedItem) {
+        modalInstance.result.then(function (result) {
             $timeout($scope.refresh(), 1000);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
     };
+
 <#else>
     $scope.${operation.name} = function() {
         if (!$scope.selectedItem) {
@@ -178,12 +177,13 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
         resourceService.${entityNameLowerCase}_${operation.name}({"uuid": $scope.selectedItem.uuid}).then(function(response){
             if(response.errorCode==0){
                 $scope.refresh();
-                toaster.pop('success', '', '${entityNameUpperCase}${operation.displayName}操作提交成功,请等待结果!');
+                toaster.pop('success', '', '${routeDisplayName}${operation.displayName}操作提交成功,请等待结果!');
             } else {
-                toaster.pop('error', '', '${entityNameUpperCase}${operation.displayName}操作提交失败,请联系管理员!');
+                toaster.pop('error', '', '${routeDisplayName}${operation.displayName}操作提交失败,请联系管理员!');
             }
         });
     };
+
 </#if>
 </#list>
 
@@ -201,18 +201,19 @@ app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCas
             if(response.errorCode==0){
                 $scope.current = response.result[0];
                 $scope.breadcrumbs = [
-                    {'path': 'app.resources.${entityNameLowerCase}', 'name': '${routeDisplayName}'},
-                    {'path': 'app.resources.${entityNameLowerCase}_detail({uuid: "'+ $scope.current.name +'"})', 'name': $scope.current.name }
+                    {'path': 'app.${routePath}', 'name': '${routeDisplayName}'},
+                    {'path': 'app.${routePath}_detail({uuid: "'+ $scope.current.name +'"})', 'name': $scope.current.name }
                 ];
             }
         });
     };
 });
 
-app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 'resourceService', 'params', function ($scope, $modalInstance, resourceService, params){
+app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 'resourceService', 'params', 'toaster',
+    function ($scope, $modalInstance, resourceService, params, toaster){
 
-    $scope.fun = params.fun;
-    $scope.grid = params.grid;
+    $scope.create = {};
+    $scope.create.name = '${entityNameLowerCase}_' + Utils.randomChar(4);
     $scope.ok = function (isValid, add) {
         if (!isValid) return;
         $modalInstance.close($scope.grid);
@@ -227,9 +228,9 @@ app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 
         $scope.cancel();
         resourceService.${entityNameLowerCase}_create(parameters).then(function(response){
             if(response.errorCode==0){
-                window.wxc.xcConfirm("${routeDisplayName}创建操作成功,请等待结果!", window.wxc.xcConfirm.typeEnum.success);
+                toaster.pop('success', '', "${routeDisplayName}创建操作成功,请等待结果!");
             } else {
-                window.wxc.xcConfirm("${routeDisplayName}创建操作失败!", window.wxc.xcConfirm.typeEnum.error);
+                toaster.pop('error', '', '${routeDisplayName}创建操作失败,请联系管理员!');
             }
         });
     }
@@ -239,14 +240,19 @@ app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 
 <#if operation.modal?string == "true">
 app.controller('${entityNameUpperCase}${operation.nameUpper}Ctrl', ['$scope', '$modalInstance', 'selectedItem', 'resourceService', 'toaster',
     function ($scope, $modalInstance, selectedItem, resourceService, toaster) {
+
+    $scope.${operation.name} = {};
+    $scope.${operation.name}.name = "${operation.name}_" + Utils.randomChar(4);
     var params = {"uuid": selectedItem.uuid};
-    $scope.ok = function () {
+    $scope.ok = function (isValid, ${operation.name}) {
+        if (!isValid) return;
         $scope.cancel();
-        resourceService.${entityNameLowerCase}_${operation.name}(params).then(function(response){
+        ${operation.name}.${entityNameLowerCase}Uuid = selectedItem.uuid;
+        resourceService.${entityNameLowerCase}_${operation.name}(${operation.name}).then(function(response){
             if(response.errorCode==0){
-                toaster.pop('success', '', '${entityNameUpperCase}${operation.displayName}操作提交成功,请等待结果!');
+                toaster.pop('success', '', '${routeDisplayName}${operation.displayName}操作提交成功,请等待结果!');
             } else {
-                toaster.pop('error', '', '${entityNameUpperCase}${operation.displayName}操作提交失败,请联系管理员!');
+                toaster.pop('error', '', '${routeDisplayName}${operation.displayName}操作提交失败,请联系管理员!');
             }
         });
     };
@@ -255,6 +261,7 @@ app.controller('${entityNameUpperCase}${operation.nameUpper}Ctrl', ['$scope', '$
         $modalInstance.dismiss('cancel');
     };
 }]);
+
 <#else>
 </#if>
 </#list>
