@@ -11,12 +11,6 @@
   {"name": "网络服务", "value": "networkServices", "type": "string", "desc": "", "table": "false", "query": "true"},
   {"name": "上次操作时间", "value": "lastOpDate", "type": "date", "desc": "", "table": "false", "query": "true"},
   {"name": "创建时间", "value": "createDate", "type": "date", "desc": "", "table": "false", "query": "true"},
-  {"name": "所属用户ID", "value": "belongUserId", "type": "string", "desc": "", "table": "false", "query": "true"},
-  {"name": "任务ID", "value": "jobId", "type": "string", "desc": "", "table": "false", "query": "true"},
-  {"name": "任务状态", "value": "jobState", "type": "string", "desc": "", "table": "false", "query": "true"},
-  {"name": "任务描述", "value": "jobDescription", "type": "string", "desc": "", "table": "false", "query": "false"},
-  {"name": "工单ID", "value": "woId", "type": "number", "desc": "", "table": "false", "query": "true"},
-  {"name": "业务ID", "value": "projectId", "type": "number", "desc": "", "table": "false", "query": "true"},
   {"name": "资源池ID", "value": "poolId", "type": "string", "desc": "", "table": "false", "query": "true"},
   {"name": "描述", "value": "description", "type": "string", "desc": "", "table": "false", "query": "true"}
 ]

@@ -19,7 +19,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
     $scope.colArr = [
 <#list fields as field>
     <#if field.table?string == "true">
-        <#if field.value == "uuid">
+        <#if field.value == "name">
         {
             field: '${field.value}',
             displayName: '${field.name}',
@@ -50,7 +50,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
 
     function getAjaxData() {
         resourceService.${entityNameLowerCase}_query($scope.queryParams).then(function(response){
-            if(response.errorCode==0){
+            if(response.status || response.errorCode==0){
                 $scope.dataArr = response.result;
             }
         });
@@ -76,7 +76,8 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             </#if>
         </#list>
         ];
-        $scope.params = dataStructure;
+        $scope.params.dataStructure = dataStructure;
+        $scope.params.module = '${entityNameLowerCase}';
         var modalInstance = $modal.open({
             backdrop: false,
             templateUrl: '${entityNameLowerCase}_search',
@@ -135,12 +136,15 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
 
         modalInstance.result.then(function (deletingItemUuid) {
             resourceService.${entityNameLowerCase}_delete({"uuid": deletingItemUuid}).then(function(response){
-                if(response.errorCode==0){
+                if(response.status || response.errorCode==0){
                     toaster.pop('success', '', '${routeDisplayName}删除操作提交成功,请等待结果!');
                 } else {
                     toaster.pop('error', '', '${routeDisplayName}删除操作提交失败,请联系管理员!');
                 }
             });
+            $timeout(function(){
+                $scope.refresh();
+            },1000);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -175,7 +179,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             return;
         }
         resourceService.${entityNameLowerCase}_${operation.name}({"uuid": $scope.selectedItem.uuid}).then(function(response){
-            if(response.errorCode==0){
+            if(response.status || response.errorCode==0){
                 $scope.refresh();
                 toaster.pop('success', '', '${routeDisplayName}${operation.displayName}操作提交成功,请等待结果!');
             } else {
@@ -198,7 +202,7 @@ app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCas
     function getByUUID(uuid) {
         $scope.queryParams = {"conditions":[{"name": "uuid", "value": uuid, "op":"="}]};
         resourceService.${entityNameLowerCase}_query($scope.queryParams).then(function(response){
-            if(response.errorCode==0){
+            if(response.status || response.errorCode==0){
                 $scope.current = response.result[0];
                 $scope.breadcrumbs = [
                     {'path': 'app.${routePath}', 'name': '${routeDisplayName}'},
@@ -227,7 +231,7 @@ app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 
     function createAjax(parameters) {
         $scope.cancel();
         resourceService.${entityNameLowerCase}_create(parameters).then(function(response){
-            if(response.errorCode==0){
+            if(response.status || response.errorCode==0){
                 toaster.pop('success', '', "${routeDisplayName}创建操作成功,请等待结果!");
             } else {
                 toaster.pop('error', '', '${routeDisplayName}创建操作失败,请联系管理员!');
@@ -243,13 +247,12 @@ app.controller('${entityNameUpperCase}${operation.nameUpper}Ctrl', ['$scope', '$
 
     $scope.${operation.name} = {};
     $scope.${operation.name}.name = "${operation.name}_" + Utils.randomChar(4);
-    var params = {"uuid": selectedItem.uuid};
     $scope.ok = function (isValid, ${operation.name}) {
         if (!isValid) return;
         $scope.cancel();
         ${operation.name}.${entityNameLowerCase}Uuid = selectedItem.uuid;
         resourceService.${entityNameLowerCase}_${operation.name}(${operation.name}).then(function(response){
-            if(response.errorCode==0){
+            if(response.status || response.errorCode==0){
                 toaster.pop('success', '', '${routeDisplayName}${operation.displayName}操作提交成功,请等待结果!');
             } else {
                 toaster.pop('error', '', '${routeDisplayName}${operation.displayName}操作提交失败,请联系管理员!');

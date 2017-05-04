@@ -1,0 +1,12 @@
+[
+  {"name": "名称", "value": "name", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "类型", "value": "type", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "物理接口", "value": "physicalInterface", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "描述", "value": "description", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "UUID", "value": "uuid", "type": "string", "desc": "", "table": "true", "query": "true"},
+  {"name": "vLAN", "value": "vlan", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "区域UUID", "value": "zoneUuid", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "挂载集群UUIDs", "value": "attachedClusterUuids", "type": "string", "desc": "", "table": "false", "query": "true"},
+  {"name": "上次操作时间", "value": "lastOpDate", "type": "date", "desc": "", "table": "false", "query": "true"},
+  {"name": "创建时间", "value": "createDate", "type": "date", "desc": "", "table": "false", "query": "true"}
+]
