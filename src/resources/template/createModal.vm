@@ -6,23 +6,23 @@
     <h4 class="modal-title">新增</h4>
 </div>
 <div class="modal-body">
-    <form id="createForm" role="form" class="sf-form form-validation" name="createForm">
+    <form id="create${entityNameUpperCase}Form" role="form" class="sf-form form-validation" name="create${entityNameUpperCase}Form">
         <div class="form-group">
             <label class="col-md-3 col-sm-3 control-label">名称:</label>
             <div class="col-md-6 col-sm-6 no-padder-sm">
-                <input type="text" class="form-control" ng-model="create.name" ng-maxlength="128" placeholder="max length of 128 character" required>
+                <input type="text" class="form-control" ng-model="create${entityNameUpperCase}.name" ng-maxlength="128" placeholder="max length of 128 character" required>
             </div>
             <span class="tip">*</span>
         </div>
         <div class="form-group">
             <label class="col-md-3 col-sm-3  control-label">描述:</label>
             <div class="col-md-6 col-sm-6 no-padder-sm">
-                <textarea class="form-control" rows="4" style="min-height: 50px;" ng-model="create.description" ng-maxlength="2048" placeholder="max length of 2048 character"></textarea>
+                <textarea class="form-control" rows="4" style="min-height: 50px;" ng-model="create${entityNameUpperCase}.description" ng-maxlength="2048" placeholder="max length of 2048 character"></textarea>
             </div>
         </div>
     </form>
 </div>
 <div class="modal-footer">
-    <button type="submit" class="btn btn-sm btn-primary" ng-click="ok(createForm.$valid, create)" ng-disabled="createForm.$invalid">OK</button>
+    <button type="submit" class="btn btn-sm btn-primary" ng-click="ok(create${entityNameUpperCase}Form.$valid, add)" ng-disabled="create${entityNameUpperCase}Form.$invalid">OK</button>
     <button type="button" class="btn btn-sm btn-default" ng-click="cancel()">Close</button>
 </div>

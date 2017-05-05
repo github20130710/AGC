@@ -3,7 +3,7 @@
  */
 'use strict';
 
-app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $timeout, $log, $stateParams, resourceService, toaster) {
+app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $interval, $stateParams, resourceService, toaster) {
 
     $scope.breadcrumbs = [
         {'path': 'app.${routePath}', 'name': '${routeDisplayName}'}
@@ -96,6 +96,31 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
         });
     };
 
+    $scope.intervals = [];
+    $scope.intervalIndex = 0;
+    $scope.jobQuery = function(jobId, index) {
+        index--;
+        resourceService.job_query({"jobId": jobId}).then(function(result){
+            if(result.success==false) {
+                toaster.pop('error', result.error.description, result.error.details);
+                $interval.cancel($scope.intervals[index]);
+                $scope.intervals.splice(index, 1);
+            } else {
+                if(result.state && result.state != 'Processing') {
+                    $scope.refresh();
+                    $interval.cancel($scope.intervals[index]);
+                    $scope.intervals.splice(index, 1);
+                }
+            }
+        });
+    };
+
+    $scope.$on('$destroy', function(){
+        angular.forEach($scope.intervals, function(value, key){
+            $interval.cancel(value);
+        });
+    });
+
     $scope.create = function(){
         var modalInstance = $modal.open({
             backdrop: false,
@@ -108,10 +133,14 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             }
         });
 
-        modalInstance.result.then(function (selectedItem) {
-            $timeout(function(){
-                $scope.refresh();
-            },1000);
+        modalInstance.result.then(function (response) {
+            if(response && response.uuid!=""){
+                var uuid = response.uuid;
+                $scope.intervals[$scope.intervalIndex] = $interval(function(){
+                    $scope.jobQuery(uuid, $scope.intervalIndex);
+                }, 2000);
+                $scope.intervalIndex ++ ;
+            }
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -138,13 +167,14 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             resourceService.${entityNameLowerCase}_delete({"uuid": deletingItemUuid}).then(function(response){
                 if(response.status || response.errorCode==0){
                     toaster.pop('success', '', '${routeDisplayName}删除操作提交成功,请等待结果!');
+                    $scope.intervals[$scope.intervalIndex] = $interval(function(){
+                        $scope.jobQuery(response.result.uuid, $scope.intervalIndex);
+                    }, 2000);
+                    $scope.intervalIndex ++ ;
                 } else {
                     toaster.pop('error', '', '${routeDisplayName}删除操作提交失败,请联系管理员!');
                 }
             });
-            $timeout(function(){
-                $scope.refresh();
-            },1000);
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -165,8 +195,14 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             }
         });
 
-        modalInstance.result.then(function (result) {
-            $timeout($scope.refresh(), 1000);
+        modalInstance.result.then(function (response) {
+            if(response && response.uuid!=""){
+                var uuid = response.uuid;
+                $scope.intervals[$scope.intervalIndex] = $interval(function(){
+                    $scope.jobQuery(uuid, $scope.intervalIndex);
+                }, 2000);
+                $scope.intervalIndex ++ ;
+            }
         }, function () {
             $log.info('Modal dismissed at: ' + new Date());
         });
@@ -180,8 +216,11 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
         }
         resourceService.${entityNameLowerCase}_${operation.name}({"uuid": $scope.selectedItem.uuid}).then(function(response){
             if(response.status || response.errorCode==0){
-                $scope.refresh();
                 toaster.pop('success', '', '${routeDisplayName}${operation.displayName}操作提交成功,请等待结果!');
+                $scope.intervals[$scope.intervalIndex] = $interval(function(){
+                    $scope.jobQuery(response.result.uuid, $scope.intervalIndex);
+                }, 2000);
+                $scope.intervalIndex ++ ;
             } else {
                 toaster.pop('error', '', '${routeDisplayName}${operation.displayName}操作提交失败,请联系管理员!');
             }
@@ -216,8 +255,8 @@ app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCas
 app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 'resourceService', 'params', 'toaster',
     function ($scope, $modalInstance, resourceService, params, toaster){
 
-    $scope.create = {};
-    $scope.create.name = '${entityNameLowerCase}_' + Utils.randomChar(4);
+    $scope.create${entityNameUpperCase} = {};
+    $scope.create${entityNameUpperCase}.name = '${entityNameLowerCase}_' + Utils.randomChar(4);
     $scope.ok = function (isValid, add) {
         if (!isValid) return;
         $modalInstance.close($scope.grid);
@@ -229,12 +268,13 @@ app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 
     };
 
     function createAjax(parameters) {
-        $scope.cancel();
         resourceService.${entityNameLowerCase}_create(parameters).then(function(response){
             if(response.status || response.errorCode==0){
                 toaster.pop('success', '', "${routeDisplayName}创建操作成功,请等待结果!");
+                $modalInstance.close(response.result);
             } else {
                 toaster.pop('error', '', '${routeDisplayName}创建操作失败,请联系管理员!');
+                $modalInstance.close();
             }
         });
     }
@@ -249,13 +289,14 @@ app.controller('${entityNameUpperCase}${operation.nameUpper}Ctrl', ['$scope', '$
     $scope.${operation.name}.name = "${operation.name}_" + Utils.randomChar(4);
     $scope.ok = function (isValid, ${operation.name}) {
         if (!isValid) return;
-        $scope.cancel();
         ${operation.name}.${entityNameLowerCase}Uuid = selectedItem.uuid;
         resourceService.${entityNameLowerCase}_${operation.name}(${operation.name}).then(function(response){
             if(response.status || response.errorCode==0){
                 toaster.pop('success', '', '${routeDisplayName}${operation.displayName}操作提交成功,请等待结果!');
+                $modalInstance.close(response.result);
             } else {
                 toaster.pop('error', '', '${routeDisplayName}${operation.displayName}操作提交失败,请联系管理员!');
+                $modalInstance.close();
             }
         });
     };
