@@ -2,7 +2,6 @@
 auto generate code with velocity
 
 
-1\菜单
 **_other.js  Menu  ------  tpl/blocks/nav_auto.html    temp nav
 
 **_other.js Router ------  views/resources/resources.config.js

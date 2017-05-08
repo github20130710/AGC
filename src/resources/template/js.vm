@@ -3,7 +3,7 @@
  */
 'use strict';
 
-app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $interval, $stateParams, resourceService, toaster) {
+app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $interval, $log, $stateParams, resourceService, toaster) {
 
     $scope.breadcrumbs = [
         {'path': 'app.${routePath}', 'name': '${routeDisplayName}'}
@@ -259,16 +259,7 @@ app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 
     $scope.create${entityNameUpperCase}.name = '${entityNameLowerCase}_' + Utils.randomChar(4);
     $scope.ok = function (isValid, add) {
         if (!isValid) return;
-        $modalInstance.close($scope.grid);
-        createAjax(add);
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-
-    function createAjax(parameters) {
-        resourceService.${entityNameLowerCase}_create(parameters).then(function(response){
+        resourceService.${entityNameLowerCase}_create(add).then(function(response){
             if(response.status || response.errorCode==0){
                 toaster.pop('success', '', "${routeDisplayName}创建操作成功,请等待结果!");
                 $modalInstance.close(response.result);
@@ -277,7 +268,11 @@ app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 
                 $modalInstance.close();
             }
         });
-    }
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 }]);
 
 <#list operations as operation>
