@@ -59,6 +59,7 @@ public class VelocityService {
         FileUtil.merge("js.vm", templatePath, context, name + ".js", outputPathPrefix + name + "/");
         FileUtil.merge("detail.vm", templatePath, context, name + "_detail.html", outputPathPrefix + name + "/");
         FileUtil.merge("createModal.vm", templatePath, context, name + "_create.html", outputPathPrefix + name + "/");
+        FileUtil.merge("service.vm", templatePath, context, name + ".service.js", outputPathPrefix + name + "/");
         FileUtil.merge("other.vm", templatePath, context, name + "_other.js", outputPathPrefix + name + "/");
     }
 

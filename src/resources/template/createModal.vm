@@ -23,6 +23,6 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button type="submit" class="btn btn-sm btn-primary" ng-click="ok(create${entityNameUpperCase}Form.$valid, add)" ng-disabled="create${entityNameUpperCase}Form.$invalid">OK</button>
+    <button type="submit" class="btn btn-sm btn-primary" ng-click="ok(create${entityNameUpperCase}Form.$valid)" ng-disabled="create${entityNameUpperCase}Form.$invalid">OK</button>
     <button type="button" class="btn btn-sm btn-default" ng-click="cancel()">Close</button>
 </div>

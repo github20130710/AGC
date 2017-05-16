@@ -3,7 +3,7 @@
  */
 'use strict';
 
-app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $interval, $log, $stateParams, resourceService, toaster) {
+app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl($scope, $modal, $interval, $log, $stateParams, ${entityNameLowerCase}Service, toaster) {
 
     $scope.breadcrumbs = [
         {'path': 'app.${routePath}', 'name': '${routeDisplayName}'}
@@ -49,7 +49,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
     };
 
     function getAjaxData() {
-        resourceService.${entityNameLowerCase}_query($scope.queryParams).then(function(response){
+        ${entityNameLowerCase}Service.${entityNameLowerCase}_query($scope.queryParams).then(function(response){
             if(response.status || response.errorCode==0){
                 $scope.dataArr = response.result;
             }
@@ -100,7 +100,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
     $scope.intervalIndex = 0;
     $scope.jobQuery = function(jobId, index) {
         index--;
-        resourceService.job_query({"jobId": jobId}).then(function(result){
+        ${entityNameLowerCase}Service.job_query({"jobId": jobId}).then(function(result){
             if(result.success==false) {
                 toaster.pop('error', result.error.description, result.error.details);
                 $interval.cancel($scope.intervals[index]);
@@ -164,7 +164,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
         });
 
         modalInstance.result.then(function (deletingItemUuid) {
-            resourceService.${entityNameLowerCase}_delete({"uuid": deletingItemUuid}).then(function(response){
+            ${entityNameLowerCase}Service.${entityNameLowerCase}_delete({"uuid": deletingItemUuid}).then(function(response){
                 if(response.status || response.errorCode==0){
                     toaster.pop('success', '', '${routeDisplayName}删除操作提交成功,请等待结果!');
                     $scope.intervals[$scope.intervalIndex] = $interval(function(){
@@ -214,7 +214,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
             window.wxc.xcConfirm("请选择要操作的资源!", window.wxc.xcConfirm.typeEnum.info);
             return;
         }
-        resourceService.${entityNameLowerCase}_${operation.name}({"uuid": $scope.selectedItem.uuid}).then(function(response){
+        ${entityNameLowerCase}Service.${entityNameLowerCase}_${operation.name}({"uuid": $scope.selectedItem.uuid}).then(function(response){
             if(response.status || response.errorCode==0){
                 toaster.pop('success', '', '${routeDisplayName}${operation.displayName}操作提交成功,请等待结果!');
                 $scope.intervals[$scope.intervalIndex] = $interval(function(){
@@ -232,7 +232,7 @@ app.controller('${entityNameUpperCase}Ctrl', function ${entityNameUpperCase}Ctrl
 
 });
 
-app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCase}DetailCtr($scope, $stateParams, resourceService){
+app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCase}DetailCtr($scope, $stateParams, ${entityNameLowerCase}Service){
 
     var uuid = $stateParams.uuid;
 
@@ -240,7 +240,7 @@ app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCas
 
     function getByUUID(uuid) {
         $scope.queryParams = {"conditions":[{"name": "uuid", "value": uuid, "op":"="}]};
-        resourceService.${entityNameLowerCase}_query($scope.queryParams).then(function(response){
+        ${entityNameLowerCase}Service.${entityNameLowerCase}_query($scope.queryParams).then(function(response){
             if(response.status || response.errorCode==0){
                 $scope.current = response.result[0];
                 $scope.breadcrumbs = [
@@ -252,14 +252,14 @@ app.controller('${entityNameUpperCase}DetailCtrl', function ${entityNameUpperCas
     };
 });
 
-app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 'resourceService', 'params', 'toaster',
-    function ($scope, $modalInstance, resourceService, params, toaster){
+app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', '${entityNameLowerCase}Service', 'params', 'toaster',
+    function ($scope, $modalInstance, ${entityNameLowerCase}Service, params, toaster){
 
     $scope.create${entityNameUpperCase} = {};
     $scope.create${entityNameUpperCase}.name = '${entityNameLowerCase}_' + Utils.randomChar(4);
-    $scope.ok = function (isValid, add) {
+    $scope.ok = function (isValid) {
         if (!isValid) return;
-        resourceService.${entityNameLowerCase}_create(add).then(function(response){
+        ${entityNameLowerCase}Service.${entityNameLowerCase}_create($scope.create${entityNameUpperCase}).then(function(response){
             if(response.status || response.errorCode==0){
                 toaster.pop('success', '', "${routeDisplayName}创建操作成功,请等待结果!");
                 $modalInstance.close(response.result);
@@ -277,15 +277,15 @@ app.controller('${entityNameUpperCase}CreateCtrl', ['$scope', '$modalInstance', 
 
 <#list operations as operation>
 <#if operation.modal?string == "true">
-app.controller('${entityNameUpperCase}${operation.nameUpper}Ctrl', ['$scope', '$modalInstance', 'selectedItem', 'resourceService', 'toaster',
-    function ($scope, $modalInstance, selectedItem, resourceService, toaster) {
+app.controller('${entityNameUpperCase}${operation.nameUpper}Ctrl', ['$scope', '$modalInstance', 'selectedItem', '${entityNameLowerCase}Service', 'toaster',
+    function ($scope, $modalInstance, selectedItem, ${entityNameLowerCase}Service, toaster) {
 
     $scope.${operation.name} = {};
     $scope.${operation.name}.name = "${operation.name}_" + Utils.randomChar(4);
     $scope.ok = function (isValid, ${operation.name}) {
         if (!isValid) return;
         ${operation.name}.${entityNameLowerCase}Uuid = selectedItem.uuid;
-        resourceService.${entityNameLowerCase}_${operation.name}(${operation.name}).then(function(response){
+        ${entityNameLowerCase}Service.${entityNameLowerCase}_${operation.name}(${operation.name}).then(function(response){
             if(response.status || response.errorCode==0){
                 toaster.pop('success', '', '${routeDisplayName}${operation.displayName}操作提交成功,请等待结果!');
                 $modalInstance.close(response.result);

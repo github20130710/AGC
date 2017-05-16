@@ -1,0 +1,83 @@
+/**
+* Created by ${author} on ${createDate?date}.
+*/
+'use strict';
+
+app.service('${entityNameLowerCase}Service', ['$resource', '$q', 'fakeMapping', '$cookieStore', 'SERVICE_CONFIG',
+    function($resource, $q, fakeMapping, $cookieStore, SERVICE_CONFIG) {
+
+    var self = this;
+
+    var ZconfServiceURL = ""; //请自行填写
+
+    self.ResourceCMD = {
+        '${entityNameLowerCase}_query'  : ${entityNameUpperCase}ServiceURL + '/Query${entityNameUpperCase}',
+        '${entityNameLowerCase}_create' : ${entityNameUpperCase}ServiceURL + '/Create${entityNameUpperCase}',
+        '${entityNameLowerCase}_delete' : ${entityNameUpperCase}ServiceURL + '/Delete${entityNameUpperCase}',
+        <#list operations as operation>
+            '${entityNameLowerCase}_${operation.name}' : ${entityNameUpperCase}ServiceURL + '/${operation.nameUpper}${entityNameUpperCase}',
+        </#list>
+    };
+    // before the ajax send
+    function transfer(cmd, paramObj){
+        if(!paramObj) {
+            paramObj = {};
+        }
+        var userUuid = $cookieStore.get('userInfo') ? $cookieStore.get('userInfo').uuid : '';
+        if(!paramObj.session && userUuid) {
+            paramObj.session = {"uuid": userUuid};
+        }
+        if((cmd.indexOf('query') > -1 || cmd.indexOf('Query') > -1) && !paramObj.conditions) {
+            paramObj.conditions = [];
+        }
+        var pool = $cookieStore.get('currentPool');
+        paramObj.poolId = pool ? pool.uuid : '';
+        var res_cmd = $resource(cmd, paramObj, {
+            get: {method:'GET'},
+            delete: {method:'DELETE'},
+            post: {method:'POST',headers :{'Content-Type' : 'application/json;charset=UTF-8'}}
+        });
+        return res_cmd;
+    }
+
+    // api list
+    ////////////////////////   ${routeDisplayName}    ////////////////////////////////////
+    self.${entityNameLowerCase}_query = function(params) {
+        var res_cmd = transfer(self.ResourceCMD.${entityNameLowerCase}_query, params);
+        var task = $q.defer();
+        res_cmd.post(params,function(response) {
+            task.resolve(response.toJSON());
+        });
+        return task.promise;
+    };
+
+    self.${entityNameLowerCase}_create = function(params) {
+        var res_cmd = transfer(self.ResourceCMD.${entityNameLowerCase}_create, params);
+        var task = $q.defer();
+        res_cmd.post(params,function(response) {
+            task.resolve(response.toJSON());
+        });
+        return task.promise;
+    };
+
+    self.${entityNameLowerCase}_delete = function(params) {
+        var res_cmd = transfer(self.ResourceCMD.${entityNameLowerCase}_delete, params);
+        var task = $q.defer();
+        res_cmd.post(params,function(response) {
+            task.resolve(response.toJSON());
+        });
+        return task.promise;
+    };
+
+    <#list operations as operation>
+        self.${entityNameLowerCase}_${operation.name} = function(params) {
+            var res_cmd = transfer(self.ResourceCMD.${entityNameLowerCase}_${operation.name}, params);
+            var task = $q.defer();
+            res_cmd.post(params,function(response) {
+                task.resolve(response.toJSON());
+            });
+            return task.promise;
+        };
+
+    </#list>
+}]);
